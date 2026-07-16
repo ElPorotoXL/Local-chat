@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module">
+        import { io } from 'https://cdn.socket.io/4.8.3/socket.io.esm.min.js'
+        const socket = io({
+            auth: {
+                token: localStorage.getItem('token'),
+                serverOffset: 0
+            }
+        })
+
+        const token = localStorage.getItem('token')
+        // console.log(token)
+
+        if (!token) {
+            window.location.href = '/login'
+        }
+
+        const form = document.getElementById('form')
+        const input = document.getElementById('input')
+        const messages = document.getElementById('messages')
+
+        socket.on('chat message', (msgData) => {
+            const currentUser = localStorage.getItem('username')
+            const messageClass = msgData.username === currentUser ? 'my-message' : 'other-message'
+            messages.innerHTML += 
+            `<li class="${messageClass}">
+                <span class="message-username">${msgData.username}</span><br>
+                <span class="message-text">${msgData.message}</span>
+                </li>`
+            socket.auth.serverOffset = msgData.id
+
+            messages.scrollTop = messages.scrollHeight
+        })
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            if (input.value) {
+                socket.emit('chat message', input.value)
+                input.value = ''
+            }
+        })
+    </script>
+</head>
+<body>
+    <main>
+        <section class="chat_container" id="chat">
+            <h1>Chat</h1>
+            <div class="chat_bubble">
+                <ul id="messages">
+
+                </ul>
+            </div>
+            <form id="form">
+                <input type="text" class="input" id="input" placeholder="Type a message" autocomplete="off">
+                <button type="submit">Send</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

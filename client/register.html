@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="register.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Register</h1>
+        <form id="register">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Register</button>
+        </form>
+        <p class="login-text">Already have an account? <a href="/login" id="go-to-login">Login</a></p>
+        <div id="error-message"></div>
+    </div>
+    <script>
+        const registerForm = document.getElementById('register');
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ UserName: username, Password: password })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error);
+                }
+                localStorage.setItem('username', data.username);
+                window.location.href = '/';
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>

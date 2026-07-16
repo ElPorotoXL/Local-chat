@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <main>
+        <h1>Login</h1>
+        <form id="login">
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" placeholder="Username">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="Password">
+            <button type="submit">Login</button>
+        </form>
+        <p class="register-text">Don't have an account? <a href="/register" id="go-to-register">Register</a></p>
+        <div id="error-message"></div>
+        <script>
+            if (localStorage.getItem('token')) {
+                window.location.href = '/';
+            }
+            const loginForm = document.getElementById('login');
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const UserName = document.getElementById('username').value;
+                const Password = document.getElementById('password').value;
+                // console.log('fetching to the server: ', JSON.stringify({ UserName, Password }));
+                try {
+                    const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ UserName, Password })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error);
+                }
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('username', data.username);
+                window.location.href = '/';
+                } catch (error) {
+                    console.error(error);
+                }
+            });
+        </script>
+    </main>
+</body>
+</html>
